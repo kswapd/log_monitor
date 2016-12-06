@@ -1,0 +1,23 @@
+FROM  redis_changesourcelist
+MAINTAINER kxw <xw.kong@hnair.com>
+LABEL Description="redis image within fluentd" Vendor="HNA Organization" Version="1.0"
+RUN apt-get update
+RUN apt-get -y install apt-utils
+RUN apt-get -y install curl libcurl4-openssl-dev ruby ruby-dev make sudo
+
+USER root
+# install fluentd td-agent
+RUN curl -L http://toolbelt.treasuredata.com/sh/install-ubuntu-trusty-td-agent2.sh | sh
+
+# clean cache files
+RUN apt-get clean && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/*
+
+# install fluentd plugins
+RUN /opt/td-agent/embedded/bin/fluent-gem install --no-ri --no-rdoc \
+    fluent-plugin-elasticsearch \
+    fluent-plugin-record-modifier 
+
+RUN mkdir -p /etc/fluentd
+COPY fluent.conf /etc/fluentd
+#CMD /etc/init.d/td-agent stop && /opt/td-agent/embedded/bin/fluentd -c /etc/fluentd/fluent.conf
+
