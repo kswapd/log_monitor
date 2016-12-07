@@ -1,29 +1,23 @@
 FROM  nginx
 MAINTAINER kxw <xw.kong@hnair.com>
 LABEL Description="nginx image within fluentd" Vendor="HNA Organization" Version="1.0"
-RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list 
-RUN echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian/ jessie-backports main non-free contrib">> /etc/apt/sources.list 
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie-updates main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie-backports main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib">> /etc/apt/sources.list
-RUN \
-DEBIAN_FRONTEND=noninteractive apt-get update && \
-DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils && \
-DEBIAN_FRONTEND=noninteractive apt-get -y install sudo ca-certificates ruby ruby-dev make gcc&& \
+RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list && \
+echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list && \
+echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
+RUN apt-get update && \
+apt-get -y install apt-utils && \
+apt-get -y install sudo ca-certificates ruby ruby-dev make gcc&& \
 echo 'gem: --no-document' >> /etc/gemrc && \
     #gem install oj && \
     #gem install json && \
-    gem install fluentd && \
+    gem install fluentd -v 0.12.29 && \
     gem install  fluent-plugin-record-modifier && \
     gem install fluent-plugin-elasticsearch && \
     gem install fluent-plugin-kafka && \
     gem install fluent-plugin-parser && \
     gem install fluent-plugin-burrow && \
-DEBIAN_FRONTEND=noninteractive    apt-get clean && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* && \
-DEBIAN_FRONTEND=noninteractive    apt-get -y autoremove gcc ruby-dev make&& \
+    apt-get clean && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* && \
+    apt-get -y autoremove gcc ruby-dev make&& \
     rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /usr/lib/ruby/gems/*/cache/*.gem
     
 #RUN adduser -D -g '' -u 1000 -h /home/fluent fluent

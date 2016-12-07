@@ -1,6 +1,6 @@
-FROM  redis
+FROM  nginx
 MAINTAINER kxw <xw.kong@hnair.com>
-LABEL Description="redis image within fluentd" Vendor="HNA Organization" Version="1.0"
+LABEL Description="nginx image within fluentd" Vendor="HNA Organization" Version="1.0"
 RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list
 RUN echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list
 RUN echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
@@ -27,9 +27,12 @@ echo 'gem: --no-document' >> /etc/gemrc && \
 RUN mkdir -p /home/fluent
 RUN mkdir -p /fluentd/log
 RUN mkdir -p /fluentd/etc /fluentd/plugins
-RUN mkdir -p /var/log/redis
-RUN touch /var/log/redis/redis.log
-RUN chmod 644 /var/log/redis/redis.log
+RUN rm -rf /var/log/nginx
+RUN mkdir -p /var/log/nginx
+RUN touch /var/log/nginx/access.log
+RUN touch /var/log/nginx/error.log
+RUN chmod 644 /var/log/nginx/error.log
+RUN chmod 644 /var/log/nginx/error.log
 #RUN chown -R fluent:fluent /fluentd
 #USER fluent
 WORKDIR /home/fluent
@@ -38,14 +41,13 @@ ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
 ENV GEM_PATH /home/fluent/.gem/ruby/2.3.0:$GEM_PATH
 
 COPY fluent.conf /fluentd/etc/
-COPY redis.conf /usr/local/bin
 COPY docker-entrypoint.sh /usr/local/bin
 
 ENV FLUENTD_OPT=""
 ENV FLUENTD_CONF="fluent.conf"
 
 EXPOSE 24224
-#CMD /etc/init.d/td-agent stop && /opt/td-agent/embedded/bin/fluentd -c /etc/fluentd/fluent.conf
-#CMD exec fluentd -c /fluentd/etc/$FLUENTD_CONF -p /fluentd/plugins $FLUENTD_OPT
-
-
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD [ "nginx" ]
