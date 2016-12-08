@@ -1,55 +1,8 @@
-FROM  nginx
+FROM nginx_flt8
 MAINTAINER kxw <xw.kong@hnair.com>
-LABEL Description="nginx image within fluentd" Vendor="HNA Organization" Version="1.0"
-RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list 
-RUN echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian/ jessie-backports main non-free contrib">> /etc/apt/sources.list 
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie-updates main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian/ jessie-backports main non-free contrib">> /etc/apt/sources.list
-RUN echo "deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib">> /etc/apt/sources.list
-RUN \
-DEBIAN_FRONTEND=noninteractive apt-get update && \
-DEBIAN_FRONTEND=noninteractive apt-get -y install apt-utils && \
-DEBIAN_FRONTEND=noninteractive apt-get -y install sudo ca-certificates ruby ruby-dev make gcc&& \
-echo 'gem: --no-document' >> /etc/gemrc && \
-    #gem install oj && \
-    #gem install json && \
-    gem install fluentd && \
-    gem install  fluent-plugin-record-modifier && \
-    gem install fluent-plugin-elasticsearch && \
-    gem install fluent-plugin-kafka && \
-    gem install fluent-plugin-parser && \
-    gem install fluent-plugin-burrow && \
-DEBIAN_FRONTEND=noninteractive    apt-get clean && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* && \
-DEBIAN_FRONTEND=noninteractive    apt-get -y autoremove gcc ruby-dev make&& \
-    rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /usr/lib/ruby/gems/*/cache/*.gem
-    
-#RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
-#RUN chown -R fluent:fluent /home/fluent
-
-RUN rm -rf /var/log/nginx && \
-mkdir -p /home/fluent /fluentd/log /fluentd/etc /fluentd/plugins /var/log/nginx && \
-touch /var/log/nginx/access.log && \
-touch /var/log/nginx/error.log && \
-chmod 644 /var/log/nginx/access.log && \
-chmod 644 /var/log/nginx/error.log 
-#RUN chown -R fluent:fluent /fluentd
-#USER fluent
-WORKDIR /home/fluent
-RUN echo "gem: --user-install --no-document" >> ~/.gemrc
-ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
-ENV GEM_PATH /home/fluent/.gem/ruby/2.3.0:$GEM_PATH
-
-COPY fluent.conf /fluentd/etc/
-COPY docker-entrypoint.sh /usr/local/bin
-
-ENV FLUENTD_OPT=""
-ENV FLUENTD_CONF="fluent.conf"
-
-EXPOSE 24224
-COPY docker-entrypoint.sh /usr/local/bin/
-RUN ln -s usr/local/bin/docker-entrypoint.sh /docker-entrypoint.sh # backwards compat
-ENTRYPOINT ["docker-entrypoint.sh"]
-#CMD /bin/bash docker-entrypoint.sh 
+LABEL Description="nginx image within fluentd" Vendor="HNA Organization" Version="1.1"
+COPY  docker-entrypoint.sh /usr/local/bin/
+COPY  nginx_monitor /usr/local/bin/
+RUN chmod 755 /usr/local/bin/nginx_monitor
+COPY  default.conf /etc/nginx/conf.d/
+COPY  fluent.conf_rancher /fluentd/etc/fluent.conf

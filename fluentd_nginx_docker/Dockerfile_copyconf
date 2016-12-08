@@ -1,4 +1,5 @@
-FROM nginx_flt1
+FROM nginx_flt6
 MAINTAINER kxw <xw.kong@hnair.com>
-LABEL Description="redis image within fluentd" Vendor="HNA Organization" Version="1.1"
-COPY  docker-entrypoint.sh /usr/local/bin/
+LABEL Description="nginx image within fluentd" Vendor="HNA Organization" Version="1.1"
+#COPY  docker-entrypoint.sh /usr/local/bin/
+COPY  fluent.conf /fluentd/etc/ 
