@@ -18,10 +18,10 @@ fi
 #	echo "im finish..."
 #fi
 
-	echo "im here..."
+echo "start redis"
 echo "$@"
-redis-server /usr/local/bin/redis.conf&
-fluentd -c /fluentd/etc/fluent.conf
-echo "im finish..."
+fluentd -c /fluentd/etc/fluent.conf &
+redis-server /usr/local/bin/redis.conf
+echo "start redis success"
 #exec "$@"
 

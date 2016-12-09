@@ -1,15 +1,15 @@
 FROM  redis
 MAINTAINER kxw <xw.kong@hnair.com>
 LABEL Description="redis image within fluentd" Vendor="HNA Organization" Version="1.0"
-RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list
-RUN echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
+RUN echo "deb http://mirrors.163.com/debian/ jessie main non-free contrib" > /etc/apt/sources.list && \
+echo "deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib" >> /etc/apt/sources.list && \
+echo "deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib" >> /etc/apt/sources.list
 RUN apt-get update && \
 apt-get -y install apt-utils && \
 apt-get -y install sudo ca-certificates ruby ruby-dev make gcc&& \
 echo 'gem: --no-document' >> /etc/gemrc && \
-    #gem install oj && \
-    #gem install json && \
+    gem install oj && \
+    gem install json && \
     gem install fluentd -v 0.12.29 && \
     gem install  fluent-plugin-record-modifier && \
     gem install fluent-plugin-elasticsearch && \
@@ -24,12 +24,12 @@ echo 'gem: --no-document' >> /etc/gemrc && \
 #RUN adduser -D -g '' -u 1000 -h /home/fluent fluent
 #RUN chown -R fluent:fluent /home/fluent
 
-RUN mkdir -p /home/fluent
-RUN mkdir -p /fluentd/log
-RUN mkdir -p /fluentd/etc /fluentd/plugins
-RUN mkdir -p /var/log/redis
-RUN touch /var/log/redis/redis.log
-RUN chmod 644 /var/log/redis/redis.log
+RUN mkdir -p /home/fluent && \
+mkdir -p /fluentd/log && \
+mkdir -p /fluentd/etc /fluentd/plugins && \
+mkdir -p /var/log/redis && \
+touch /var/log/redis/redis.log && \
+chmod 644 /var/log/redis/redis.log && \
 #RUN chown -R fluent:fluent /fluentd
 #USER fluent
 WORKDIR /home/fluent
