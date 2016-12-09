@@ -1,0 +1,35 @@
+<source> @type tail path /var/log/mysql/error.log
+  format /^(?<time>[^ ]*) (?<pid>[^ ]*) \[(?<warntype>[^ ]*)\] (?<msg>.*)?$/
+  time_format %Y-%m-%dT%H:%M:%S.%L%Z
+  tag mysql.origin
+  pos_file /var/log/mysql.log.pos
+</source>
+
+<filter mysql.origin>
+  @type record_transformer
+  enable_ruby
+  <record>
+    "type" "mysql"
+    "data" ${require 'json';require "open-uri";uri = 'http://169.254.169.250/2015-12-19/containers';html_response = nil;uuid="uuid_123";env_id = "123";namespace="namespace_123";container_name="containername_123";open(uri,"Accept" => "application/json")  do |http| html_response = http.read end;log_info = Hash["log_time" => time.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "warn_type"=>record["warntype"],"message"=>record['pid'] + " " + record['msg']];json_data = Hash["container_uuid"=>uuid,"environment_id"=>env_id, "contanier_name"=>container_name,"namespace"=>namespace,"app_file"=>"error.log","timestamp"=>Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "log_info"=>log_info];json_data.to_json}
+  </record>
+</filter> 
+<filter mysql.origin>
+  @type record_transformer
+  renew_record true
+  keep_keys type,data
+</filter>
+<match mysql.origin>
+   type burrow
+   key_name data
+   action inplace
+   format json
+   tag mysql.process
+</match>
+<match mysql.process>
+ @type copy
+<store>
+  @type kafka
+  brokers 192.168.100.180:8074,192.168.100.181:8074,192.168.100.182:8074
+  default_topic log-file
+</store>
+</match>
