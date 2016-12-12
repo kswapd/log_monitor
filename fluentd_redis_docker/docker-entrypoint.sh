@@ -21,6 +21,7 @@ fi
 echo "start redis"
 echo "$@"
 fluentd -c /fluentd/etc/fluent.conf &
+/usr/local/bin/redis_monitor -redis.addr=localhost:6379 -kafka_topic=capability-redis -kafka_broker_list=192.168.100.180:8074,192.168.100.181:8074,192.168.100.182:8074 &
 redis-server /usr/local/bin/redis.conf
 echo "start redis success"
 #exec "$@"
