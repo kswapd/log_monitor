@@ -5,3 +5,5 @@ RUN touch /var/log/mysql.log.pos && \
 chmod 666 /var/log/mysql.log.pos 
 COPY docker-entrypoint.sh /usr/local/bin
 COPY fluent.conf /fluentd/etc
+COPY  mysql_monitor /usr/local/bin/
+RUN chmod 755 /usr/local/bin/mysql_monitor
