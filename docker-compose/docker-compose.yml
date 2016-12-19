@@ -1,0 +1,11 @@
+version: '2'
+services:
+  #web:
+  #  build: .
+  #  ports:
+  #   - "5000:5000"
+  #  volumes:
+  #   - .:/code
+  myfltd:
+    image: "kswapd/container-log:0.4"
+    network_mode: "host"
