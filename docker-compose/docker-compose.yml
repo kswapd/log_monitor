@@ -9,3 +9,15 @@ services:
   myfltd:
     image: "kswapd/container-log:0.4"
     network_mode: "host"
+  container-monitor:
+    privileged: true
+    image: "mutemaniac/container-monitor:latest"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    labels:
+      caas.hna.monitor.container: 'true'
+
+    
