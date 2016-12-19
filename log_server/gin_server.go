@@ -160,7 +160,7 @@ func main() {
 	    c.BindJSON(&queryInfo)
 	    //c.JSON(200, gin.H{"type": queryInfo.Query_type})
 	    //queryInfo.Query_type = "query is ok"
-	    ret := queryDB("SELECT * FROM tx_bytes limit 2")
+	    ret := queryDB("SELECT * FROM tx_bytes limit 3")
 	    c.JSON(200, ret)
     })
 
@@ -302,81 +302,112 @@ func main() {
 
     	//json.Unmarshal([]byte(mystats), &monitorResult.Stats)
     	//monitorResult.Stats = make(reflect.TypeOf(Stats) , 1)
-    	monitorResult.Stats = make([]StatsInfo , 2)
-    	var info StatsInfo
-    	timeStr := ""
-    	timeStatResult := make(map[string]StatsInfo)
-	    c.BindJSON(&queryInfo)
-	    //ret := queryDB("select * from cpu_usage_per_cpu limit 1;select * from  cpu_usage_system limit 1")
-	    ret := queryDB("select * from /.*/ limit 1")
-	    //fmt.Println(reflect.TypeOf(ret))
-	    //fmt.Println(len(ret[0].Series))
-	    
+  ret := queryDB("select * from /.*/ limit 10")
 
+
+      	//monitorResult.Stats = make([]StatsInfo , 2)
+    	//var info StatsInfo
+    	timeStr := ""
+    	timeNameStatResult := make(map[string]map[string]int)
+	    c.BindJSON(&queryInfo)
+
+      if len(ret[0].Series) > 0{
+         // monitorResult.
+          monitorResult.Timestamp = fmt.Sprintf("%s", ret[0].Series[0].Values[0][0])
+          monitorResult.Container_uuid = fmt.Sprintf("%s", ret[0].Series[0].Values[0][14])
+          monitorResult.Environment_id = fmt.Sprintf("%s", ret[0].Series[0].Values[0][24])
+          monitorResult.Container_name = fmt.Sprintf("%s", ret[0].Series[0].Values[0][1])
+          monitorResult.Namespace  = fmt.Sprintf("%s", ret[0].Series[0].Values[0][24])
+      }
 	    for index := 0; index < len(ret[0].Series); index++ {
 	    	se := ret[0].Series[index]
-    		timeStr = fmt.Sprintf("%s", se.Values[0][0])
-    		valStr := fmt.Sprintf("%s", se.Values[0][28])
-    		val,err := strconv.Atoi(valStr)
-    		_ = err
-    		fmt.Printf("%d :%s,%s,%s\n", index, se.Name, se.Values[0][28], se.Values[0][0])
-    		//fmt.Println(reflect.TypeOf(se.Name))
-    		switch se.Name {
-    		 	case "cpu_usage_per_cpu":
-    		 		//StatsInfo.Container_cpu_usage_seconds_total = 
-    		 		break
-    		 	case "cpu_usage_system":
-    		 		info.Container_cpu_system_seconds_total = val
-    		 		break
-    		 	case "cpu_usage_total":
-    		 		info.Container_cpu_usage_seconds_total = val
-    		 		break
-    		 	case "cpu_usage_user":
-    		 		info.Container_cpu_user_seconds_total = val
-    		 		break
-    		 	case "fs_limit":
+        timeNameStatResult[se.Name] = make(map[string]int)
 
-    		 		break
-    		 	case "fs_usage":
-    		 		break
-    		 	case "load_average":
-    		 		break
-    		 	case "memory_usage":
-    		 		info.Container_memory_usage_bytes = val
-    		 		break
-    		 	case "memory_working_set":
-    		 		break
-    		 	case "rx_bytes":
-    		 		info.Container_network_receive_bytes_total = val
-    		 		break
-    		 	case "rx_errors":
-    		 		info.Container_network_receive_errors_total = val
-    		 		break
-    		 	case "tx_bytes":
-    		 		info.Container_network_transmit_bytes_total = val
-    		 		break
-    		 	case "tx_errors":
-    		 		info.Container_network_transmit_errors_total = 	val
-    		 		break
-    		 	default:
-    		 		fmt.Println("Error metric name.")
-    		 	}
-    		 	timeStatResult[timeStr] = info
-		}
+        for valIndex := 0; valIndex < len(se.Values); valIndex ++ {
+      		timeStr = fmt.Sprintf("%s", se.Values[valIndex][0])
+      		valStr := fmt.Sprintf("%s", se.Values[valIndex][28])
+      		val,err := strconv.Atoi(valStr)
+      		_ = err
+      		fmt.Printf("%d :%s,%s,%s\n", index, se.Name, se.Values[valIndex][28], se.Values[valIndex][0])
+      		//fmt.Println(reflect.TypeOf(se.Name))	
+          timeNameStatResult[se.Name][timeStr] = val
+        }
+      }
+      timeStat := make(map[string] *StatsInfo)
+
+      for k, v := range timeNameStatResult {
+
+         //t := v.(map[string]int)
+          _ = k
+         t := v
+        // var info StatsInfo
+         //fmt.Printf("k=%v.\n", k)
+         for k1,val:= range t {
+         // fmt.Printf("k1=%v, v1=%v\n", k1,val) 
+
+          if _, ok := timeStat[k1]; !ok {
+            //return true
+            timeStat[k1] = new (StatsInfo)
+          }
+          info := timeStat[k1]
+          switch k {
+          case "cpu_usage_per_cpu":
+            //StatsInfo.Container_cpu_usage_seconds_total = 
+
+            break
+          case "cpu_usage_system":
+            info.Container_cpu_system_seconds_total = val
+            break
+          case "cpu_usage_total":
+            info.Container_cpu_usage_seconds_total = val
+            break
+          case "cpu_usage_user":
+            info.Container_cpu_user_seconds_total = val
+            break
+          case "fs_limit":
+
+            break
+          case "fs_usage":
+            break
+          case "load_average":
+            break
+          case "memory_usage":
+            info.Container_memory_usage_bytes = val
+            break
+          case "memory_working_set":
+            break
+          case "rx_bytes":
+            info.Container_network_receive_bytes_total = val
+            break
+          case "rx_errors":
+            info.Container_network_receive_errors_total = val
+            break
+          case "tx_bytes":
+            info.Container_network_transmit_bytes_total = val
+            break
+          case "tx_errors":
+            info.Container_network_transmit_errors_total =  val
+            break
+          default:
+            fmt.Println("Error metric name.")
+          }
+
+
+
+        }
+    }
+
+    monitorResult.Stats = make([]StatsInfo , len(timeStat))
+    index := 0
+    for k, _ := range timeStat{
+      //fmt.Printf("%#v.\n",timeStat[k]);
+      monitorResult.Stats[index] = *timeStat[k]
+      index ++
+    }
+
 	
-		fmt.Println(timeStatResult)
+	
 
-
-		/*for i, row := range ret[0].Series[0].Values {
-		    t, err := time.Parse(time.RFC3339, row[0].(string))
-		    if err != nil {
-		        log.Fatal(err)
-		    }
-		    val := row[1].(string)
-		    log.Printf("[%2d] %s: %s\n", i, t.Format(time.Stamp), val)
-		}*/	
-
-	    _=timeStatResult
 	    _=mjson
 	    _=ret
 	    _=mystats
@@ -384,8 +415,8 @@ func main() {
 	    //append(monitorResult.Stats, [])
 	    //fmt.Println(len(monitorResult.Stats))
 	   // fmt.Println(ret)
-	    monitorResult.Stats[0] = timeStatResult[timeStr]
-	    monitorResult.Timestamp = timeStr
+	    //monitorResult.Stats[0] = timeStatResult[timeStr]
+	    //monitorResult.Timestamp = timeStr
 	    c.JSON(200, monitorResult)
     })
 
