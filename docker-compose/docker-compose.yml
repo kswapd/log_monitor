@@ -1,14 +1,10 @@
 version: '2'
 services:
-  #web:
-  #  build: .
-  #  ports:
-  #   - "5000:5000"
-  #  volumes:
-  #   - .:/code
-  myfltd:
+  container-log:
     image: "kswapd/container-log:0.4"
     network_mode: "host"
+    labels:
+      caas.hna.log.container: 'true'
   container-monitor:
     privileged: true
     image: "mutemaniac/container-monitor:latest"
