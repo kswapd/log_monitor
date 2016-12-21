@@ -174,7 +174,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		echo
 	fi
 fi
-/usr/local/bin/mysql_monitor -mysql_client_host=localhost -mysql_client_user=root -mysql_client_port=3306 -mysql_client_password "$MYSQL_ROOT_PASSWORD"  -kafka_topic=capability-mysql -kafka_broker_list=223.202.32.61:8050,223.202.32.61:8051,223.202.32.61:8052 &
+/usr/local/bin/mysql_monitor -mysql_client_host=localhost -mysql_client_user=root -mysql_client_port=3306 -mysql_client_password "$MYSQL_ROOT_PASSWORD"  -kafka_topic=capability-mysql -kafka_broker_list=10.0.128.132:9092,10.0.128.133:9092 &
 fluentd -c /fluentd/etc/fluent.conf &
 exec "$@"
 #exec "$@"

@@ -7,3 +7,6 @@ COPY docker-entrypoint.sh /usr/local/bin
 RUN rm -rf /usr/local/bin/redis_monitor
 COPY  redis_monitor /usr/local/bin/
 RUN chmod 755 /usr/local/bin/redis_monitor
+#ENTRYPOINT ["docker-entrypoint.sh"]
+#EXPOSE 6379
+#CMD [ "redis-server" ]
