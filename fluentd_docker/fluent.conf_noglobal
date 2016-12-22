@@ -1,0 +1,41 @@
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+<match docker.*>
+    @type record_modifier
+    tag docker.after.process
+</match>
+<filter docker.after.process>
+  @type record_transformer
+  enable_ruby
+  <record>
+    "type" "container"
+    "data" ${require 'json';require "open-uri";html_response = nil;uuid="uuid_123";env_id = "123";namespace="namespace_123";container_name="containername_123";uri='http://169.254.169.250/latest/containers';urienv='http://169.254.169.250/latest/self/host';html_res_env=nil;info_env=nil;open(uri,"Accept" => "application/json")  do |http| html_response = http.read end;open(urienv,"Accept" => "application/json") do |http| html_res_env = http.read end;info_env=JSON.parse(html_res_env);env_id=info_env['labels']['caas.hna.environment.id'];container_array = JSON.parse(html_response);uuid=record["container_id"];container_array.each do |info| if info['external_id']==uuid;uuid=info['labels']['io.rancher.container.uuid'];container_name=info['labels']['io.rancher.container.name'];namespace=info['labels']['io.rancher.stack.name'];if env_id==nil; env_id="123";end; if namespace==nil;namespace="name123";end; if uuid==nil; uuid=record["container_id"];end;if container_name==nil;container_name="con123";end;break;end; end;log_info = Hash["log_time" => time.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "source"=>record["source"],"message"=>record["log"]];json_data = Hash["container_uuid"=>uuid,"environment_id"=>env_id,"namespace"=>namespace,"container_name"=>container_name, "timestamp"=>Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "log_info"=>log_info];json_data.to_json}
+  </record>
+</filter> 
+
+#in-place to avoid escape character
+<filter docker.after.process>
+  @type record_transformer
+  renew_record true
+  keep_keys type,data
+</filter>
+<match docker.after.process>
+    type burrow
+    key_name data
+   action inplace
+   format json
+   tag docker.after.process.proc
+</match>
+
+<match docker.after.process.proc>
+ @type copy
+<store>
+  @type kafka
+  brokers 10.0.128.132:9092,10.0.128.133:9092
+  default_topic log-file
+</store>
+</match>
