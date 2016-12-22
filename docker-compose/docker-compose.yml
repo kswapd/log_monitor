@@ -1,13 +1,13 @@
 version: '2'
 services:
   container-log:
-    image: "kswapd/container-log:0.4"
+    image: "kswapd/container-log:g1"
     network_mode: "host"
     labels:
       caas.hna.log.container: 'true'
   container-monitor:
     privileged: true
-    image: "mutemaniac/container-monitor:latest"
+    image: "mutemaniac/container-monitor:t0.5"
     volumes:
     - /:/rootfs:ro
     - /var/run:/var/run:rw
