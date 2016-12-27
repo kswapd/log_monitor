@@ -9,7 +9,7 @@ import (
 )
 
 
-func QueryContainerLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
+func QueryContainerMonitorInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
 
 	var monitorResult QueryMonitorResultJson
       //ret := Monitor.QueryDB("select * from /.*/ limit 10")
@@ -57,19 +57,20 @@ func QueryContainerLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
           monitorResult.Container_name = fmt.Sprintf("%s", ret[0].Series[0].Values[0][1])
           monitorResult.Namespace  = fmt.Sprintf("%s", ret[0].Series[0].Values[0][24])
       }
-	    for index := 0; index < len(ret[0].Series); index++ {
-	    	se := ret[0].Series[index]
-        timeNameStatResult[se.Name] = make(map[string]int)
 
-        for valIndex := 0; valIndex < len(se.Values); valIndex ++ {
-      		timeStr = fmt.Sprintf("%s", se.Values[valIndex][0])
-      		valStr := fmt.Sprintf("%s", se.Values[valIndex][28])
-      		val,err := strconv.Atoi(valStr)
-      		_ = err
-      		//fmt.Printf("%d :%s,%s,%s\n", index, se.Name, se.Values[valIndex][28], se.Values[valIndex][0])
-      		//fmt.Println(reflect.TypeOf(se.Name))	
-          timeNameStatResult[se.Name][timeStr] = val
-        }
+	  for index := 0; index < len(ret[0].Series); index++ {
+	    	se := ret[0].Series[index]
+        	timeNameStatResult[se.Name] = make(map[string]int)
+
+	        for valIndex := 0; valIndex < len(se.Values); valIndex ++ {
+	      		timeStr = fmt.Sprintf("%s", se.Values[valIndex][0])
+	      		valStr := fmt.Sprintf("%s", se.Values[valIndex][28])
+	      		val,err := strconv.Atoi(valStr)
+	      		_ = err
+	      		//fmt.Printf("%d :%s,%s,%s\n", index, se.Name, se.Values[valIndex][28], se.Values[valIndex][0])
+	      		//fmt.Println(reflect.TypeOf(se.Name))	
+	          timeNameStatResult[se.Name][timeStr] = val
+	        }
       }
       timeStat := make(map[string] *StatsInfo)
 
@@ -144,17 +145,17 @@ func QueryContainerLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
       index ++
     }
 
-	    _=ret
-	    _=monitorResult
+	_=ret
+	_=monitorResult
 
-	    c.JSON(200, monitorResult)
+	c.JSON(200, monitorResult)
 
 
 
 }
 
 
-func QueryAppLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
+func QueryAppMonitorInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
 	c.JSON(200, gin.H{
             "message": "Todo app monitor system.",
         })
@@ -172,10 +173,10 @@ func QueryMonitorInfo(c *gin.Context) {
 
       switch queryInfo.Query_type {
       		case "container":
-      			QueryContainerLogInfo(c, queryInfo)
+      			QueryContainerMonitorInfo(c, queryInfo)
       			break
       		case "app":
-      			QueryAppLogInfo(c, queryInfo)
+      			QueryAppMonitorInfo(c, queryInfo)
       			break
       		default:
       			log.Fatalln("Error, invalid query type.")
