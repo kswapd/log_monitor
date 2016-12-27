@@ -8,24 +8,21 @@ import (
     "log"
 )
 
-func QueryMonitorInfo(c *gin.Context) {
 
-      var queryInfo Common.QueryMonitorJson
-      var monitorResult QueryMonitorResultJson
+func QueryContainerLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
+
+	var monitorResult QueryMonitorResultJson
       //ret := Monitor.QueryDB("select * from /.*/ limit 10")
-      var finalQuery string
-    	timeStr := ""
-      const TimeFormat = "2006-01-02 15:04:05"
-      const RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
-      const InfluxTimeFormat = "2006-01-02T15:04:05.999Z"
+    var finalQuery string
+    timeStr := ""
+    const TimeFormat = "2006-01-02 15:04:05"
+    const RFC3339Nano = "2006-01-02T15:04:05.999999999Z07:00"
+    const InfluxTimeFormat = "2006-01-02T15:04:05.999Z"
       //var err error
       //MetricsName-->TimeStamp-->value
-    	timeNameStatResult := make(map[string]map[string]int)
-	    c.BindJSON(&queryInfo)
+    timeNameStatResult := make(map[string]map[string]int)
 
-      fmt.Println(queryInfo)
-
-      var queryValidation = true
+    var queryValidation = true
 
 
       
@@ -151,4 +148,44 @@ func QueryMonitorInfo(c *gin.Context) {
 	    _=monitorResult
 
 	    c.JSON(200, monitorResult)
+
+
+
+}
+
+
+func QueryAppLogInfo(c *gin.Context, queryInfo Common.QueryMonitorJson){
+	c.JSON(200, gin.H{
+            "message": "Todo app monitor system.",
+        })
+}
+
+
+
+func QueryMonitorInfo(c *gin.Context) {
+
+      var queryInfo Common.QueryMonitorJson
+      
+	    c.BindJSON(&queryInfo)
+
+      fmt.Println(queryInfo)
+
+      switch queryInfo.Query_type {
+      		case "container":
+      			QueryContainerLogInfo(c, queryInfo)
+      			break
+      		case "app":
+      			QueryAppLogInfo(c, queryInfo)
+      			break
+      		default:
+      			log.Fatalln("Error, invalid query type.")
+      			break
+
+      }
+
+
+
+
+
+      
 }
