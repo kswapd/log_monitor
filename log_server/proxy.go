@@ -10,7 +10,6 @@ import (
 )
 
 var (
-
 	listenPort = flag.Uint("listen_port", 8085, "The port listen to.")
 	listenIP   = flag.String("listen_ip", "", "The ip listen to.")
 	remotePort = flag.Uint("remote_port", 8000, "The port of monitor server.")
@@ -43,7 +42,7 @@ func startServer() {
 	}
 }
 
-func main() {
+func main3() {
 	flag.Parse()
 	startServer()
 }
