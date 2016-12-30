@@ -1,0 +1,38 @@
+<source>
+  @type tail
+  path /var/log/nginx/access.log
+  format /^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)") "(?<xreqfor>[^\"]*)"?$/
+  time_format %d/%b/%Y:%H:%M:%S %z
+  tag nginx.access.origin
+  pos_file /var/log/nginx.log.pos
+</source>
+
+<filter nginx.access.origin>
+  @type record_transformer
+  enable_ruby
+  <record>
+    "type" "nginx"
+    "data" ${require 'json';require "open-uri";uri = 'http://169.254.169.250/2015-12-19/self/container';html_response = nil ;uuid="uuid_123";env_id = "123"; namespace="namespace_123"; container_name="conainer_name123";open(uri,"Accept" => "application/json")  do |http| html_response = http.read end;info = JSON.parse(html_response); uuid=info['uuid'];env_id=info['labels']['io.rancher.project_service.name'];container_name=info['name'];namespace=info['stack_name'];log_info = Hash["log_time" => time.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "remote"=>record["remote"],"host"=>record["host"],"user"=>record["user"],"method"=>record["method"],"path"=>record["path"],"code"=>record["code"],"size"=>record["size"],"referer"=>record["referer"],"agent"=>record["agent"]];json_data = Hash["container_uuid"=>uuid,"environment_id"=>env_id,"namespace"=>namespace, "conainer_name"=>container_name, "app_file"=>"access.log","timestamp"=>Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "log_info"=>log_info];json_data.to_json}
+  </record>
+</filter> 
+
+<filter nginx.access.origin>
+  @type record_transformer
+  renew_record true
+  keep_keys type,data
+</filter>
+<match nginx.access.origin>
+   type burrow
+   key_name data
+   action inplace
+   format json
+   tag nginx.access.process
+</match>
+<match nginx.access.process>
+ @type copy
+<store>
+  @type kafka
+  brokers 192.168.100.180:8074,192.168.100.181:8074,192.168.100.182:8074 
+  default_topic log-file
+</store>
+</match>

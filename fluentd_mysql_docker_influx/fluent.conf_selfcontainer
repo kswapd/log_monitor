@@ -1,0 +1,49 @@
+<source>
+  @type tail
+  path /var/log/redis/redis.log
+  format /^(?<pidtype>[^ ]*) (?<time>[^\*\-#]*) (?<warntype>[\*\-\.#]*) (?<msg>.*)?$/
+  time_format %d %b %H:%M:%S.%L 
+  tag redis.origin
+  pos_file /var/log/redis.log.pos
+</source>
+
+<filter redis.origin>
+  @type record_transformer
+  enable_ruby
+  <record>
+    "type" "log_redis"
+    "data" ${require 'json';require "open-uri";uri = 'http://169.254.169.250/2015-12-19/self/container';html_response = nil;uuid="uuid_123";env_id = "env_id123";namespace="namespace_123";container_name="containername_123";open(uri,"Accept" => "application/json")  do |http| html_response = http.read end;info = JSON.parse(html_response); uuid=info['uuid'];env_id=info['labels']['io.rancher.project_service.name'];container_name=info['name'];namespace=info['stack_name'];log_info = Hash["log_time" => time.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "warn_type"=>record['warntype'],"message"=>record['pidtype'] + " " + record['msg']];json_data = Hash["container_uuid"=>uuid,"environment_id"=>env_id,"container_name"=>container_name, "namespace"=>namespace, "app_file"=>"redis.log","timestamp"=>Time.now.strftime('%Y-%m-%dT%H:%M:%S.%L%:z'), "log_info"=>log_info];json_data.to_json}
+  </record>
+</filter> 
+
+<filter redis.origin>
+  @type record_transformer
+  renew_record true
+  keep_keys type,data
+</filter>
+<match redis.origin>
+   type burrow
+   key_name data
+   action inplace
+   format json
+   tag redis.process
+</match>
+<match redis.process>
+ @type copy
+ <store>
+  #@type stdout
+  @type elasticsearch
+  host 223.202.32.60
+  port 8056
+  logstash_format true
+  logstash_prefix fluentd_from_redis_to_es.log
+  flush_interval 5s
+  num_threads 2
+</store>
+<store>
+  @type kafka
+  brokers 223.202.32.59:8065 
+  default_topic fluentd_from_redis_to_kafka
+</store>
+</match>
+

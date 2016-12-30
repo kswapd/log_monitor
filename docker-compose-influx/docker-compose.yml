@@ -1,0 +1,17 @@
+version: '2'
+services:
+  container-log:
+    image: "kswapd/container-log:g1"
+    network_mode: "host"
+    labels:
+      caas.hna.log.container: 'true'
+  container-monitor:
+    privileged: true
+    image: "mutemaniac/container-monitor:i0.6.1"
+    volumes:
+    - /:/rootfs:ro
+    - /var/run:/var/run:rw
+    - /sys:/sys:ro
+    - /var/lib/docker/:/var/lib/docker:ro
+    labels:
+      caas.hna.monitor.container: 'true'
