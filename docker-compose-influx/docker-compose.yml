@@ -5,13 +5,17 @@ services:
     network_mode: "host"
     labels:
       caas.hna.log.container: 'true'
+      io.rancher.scheduler.global: 'true'
   container-monitor:
     privileged: true
-    image: "mutemaniac/container-monitor:i0.6.1"
+    image: "registry.hnaresearch.com/public/container-monitor:i0.8"
     volumes:
-    - /:/rootfs:ro
-    - /var/run:/var/run:rw
-    - /sys:/sys:ro
-    - /var/lib/docker/:/var/lib/docker:ro
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    environment:
+      - INFLUXDB_RELAY_HOST=internal-hna-caas-product-bd-influxdb-lb-1872922884.cn-north-1.elb.amazonaws.com.cn:8086
     labels:
       caas.hna.monitor.container: 'true'
+      io.rancher.scheduler.global: 'true'
