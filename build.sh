@@ -1,23 +1,25 @@
 #! /bin/bash
-echo "1"
+imageversion=0.6
+
+
 cp $GOPATH/src/monitor/mysql_monitor/bin/mysql_monitor fluentd_mysql_docker_influx/mysql_monitor
-echo "2"
+
 cp $GOPATH/src/monitor/nginx_monitor/bin/nginx_monitor fluentd_nginx_docker_influx/nginx_monitor
-echo "3"
+
 cp $GOPATH/src/monitor/redis_monitor/bin/redis_monitor fluentd_redis_docker_influx/redis_monitor
-echo "4"
 
 cd fluentd_mysql_docker_influx
-echo "5"
-docker build -t mutemaniac/mysql:i0.5 .
-echo "6"
+docker build -t registry.hnaresearch.com/public/mysql:${imageversion} .
 cd ../fluentd_nginx_docker_influx
-docker build -t mutemaniac/nginx:i0.5 .
+docker build -t mutemaniac/nginx:${imageversion} .
 cd ../fluentd_redis_docker_influx
-docker build -t mutemaniac/redis:i0.5 .
+docker build -t registry.hnaresearch.com/public/redis:${imageversion} .
 cd ..
 
 
-docker push mutemaniac/mysql:i0.5
-docker push mutemaniac/nginx:i0.5
-docker push mutemaniac/redis:i0.5
+docker push registry.hnaresearch.com/public/mysql:${imageversion}
+docker push mutemaniac/nginx:${imageversion}
+docker push registry.hnaresearch.com/public/redis:${imageversion}
+
+docker tag registry.hnaresearch.com/public/mysql:${imageversion}  registry.hnaresearch.com/public/mysql:latest
+docker tag registry.hnaresearch.com/public/redis:${imageversion} registry.hnaresearch.com/public/redis:latest

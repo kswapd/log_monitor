@@ -7,7 +7,7 @@ echo "start redis"
 echo "$@"
 echo "$0"
 fluentd -c /fluentd/etc/fluent.conf &
-/usr/local/bin/redis_monitor -redis.addr=localhost:6379 -storage_driver=influxdb -storage_driver_host=10.0.128.210:9096 &
+/usr/local/bin/redis_monitor -redis.addr=localhost:6379 -storage_driver=influxdb -storage_driver_host=internal-hna-caas-product-bd-influxdb-lb-1872922884.cn-north-1.elb.amazonaws.com.cn:8086 &
 if [ "${1#-}" != "$1" ] || [ "${1%.conf}" != "$1" ]; then
     set -- redis-server "$@"
 fi

@@ -174,7 +174,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		echo
 	fi
 fi
-/usr/local/bin/mysql_monitor -mysql_client_host=localhost -mysql_client_user=root -mysql_client_port=3306 -mysql_client_password "$MYSQL_ROOT_PASSWORD"  -storage_driver=influxdb -storage_driver_host=10.0.128.210:9096 &
+/usr/local/bin/mysql_monitor -mysql_client_host=localhost -mysql_client_user=root -mysql_client_port=3306 -mysql_client_password "$MYSQL_ROOT_PASSWORD"  -storage_driver=influxdb -storage_driver_host=internal-hna-caas-product-bd-influxdb-lb-1872922884.cn-north-1.elb.amazonaws.com.cn:8086 &
 fluentd -c /fluentd/etc/fluent.conf &
 exec "$@"
 #exec "$@"
