@@ -1,0 +1,11 @@
+version: '2'
+services:
+  container-custom-log:
+    privileged: true
+    image: "kswapd/container-custom-log:0.1"
+    volumes:
+    - /var/log/containers:/var/log/containers:rw
+    labels:
+      caas.hna.log.custom: 'true'
+
+    
