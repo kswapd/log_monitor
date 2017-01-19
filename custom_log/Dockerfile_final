@@ -8,7 +8,7 @@ ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
 
 USER root
 RUN \
-    gem install fluent-plugin-elasticsearch  fluent-plugin-record-modifier fluent-plugin-kafka fluent-plugin-burrow 
+    gem install fluent-plugin-elasticsearch  fluent-plugin-record-modifier fluent-plugin-kafka fluent-plugin-burrow fluent-plugin-grep 
 EXPOSE 24224
 COPY fluent.conf /fluentd/etc/
 CMD exec fluentd -c /fluentd/etc/$FLUENTD_CONF -p /fluentd/plugins $FLUENTD_OPT
