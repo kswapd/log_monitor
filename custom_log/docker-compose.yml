@@ -2,7 +2,7 @@ version: '2'
 services:
   container-custom-log:
     privileged: true
-    image: "kswapd/container-custom-log:1.5c"
+    image: "kswapd/container-custom-log:2.2"
     volumes:
     - /var/log/containers:/var/log/containers:rw
     labels:

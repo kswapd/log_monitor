@@ -1,5 +1,5 @@
 #FROM kswapd/container-log:0.2
-FROM kswapd/container-custom-log:1.8c
+FROM kswapd/container-custom-log:0.2
 MAINTAINER kxw <xw.kong@hnair.com>
 WORKDIR /home/fluent
 ENV PATH /home/fluent/.gem/ruby/2.3.0/bin:$PATH
